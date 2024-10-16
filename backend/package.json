@@ -4,7 +4,7 @@
 	"description": "Background Removal AI SaaS App - Backend",
 	"main": "./src/index.ts",
 	"scripts": {
-		"build": "tsc",
+		"build": "npm install && npx tsc",
 		"start": "node dist/index.js",
 		"dev": "nodemon"
 	},
