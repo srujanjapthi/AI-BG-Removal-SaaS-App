@@ -1,19 +1,7 @@
 import { Request, Response } from "express";
 import { Webhook } from "svix";
 import User, { UserSchemType } from "../models/user";
-
-type WebhookType = {
-	data: {
-		id: string;
-		email_addresses: {
-			email_address: string;
-		}[];
-		first_name: string;
-		last_name: string;
-		image_url: string;
-	};
-	type: "user.created" | "user.updated" | "user.deleted";
-};
+import { WebhookEvent } from "@clerk/clerk-sdk-node";
 
 // API Controller Function to Manage Clerk User with database
 // http://localhost:3000/api/user/webhooks
@@ -30,21 +18,19 @@ export const clerkWebhooks = async (req: Request, res: Response) => {
 			"svix-signature": req.headers["svix-signature"] as string,
 		});
 
-		const { data, type }: WebhookType = req.body;
+		const { data, type }: WebhookEvent = req.body;
 
 		switch (type) {
 			case "user.created":
-				const userData: UserSchemType = {
+				await User.create({
 					userId: data.id,
 					email: data.email_addresses[0].email_address,
-					firstName: data.first_name,
-					lastName: data.last_name,
+					firstName: data.first_name! as string,
+					lastName: data.last_name as string,
 					photo: data.image_url,
-				};
+				});
 
-				await User.create(userData);
-				res.json({});
-
+				res.json({ success: true, message: "User created" });
 				break;
 
 			case "user.updated":
@@ -58,15 +44,25 @@ export const clerkWebhooks = async (req: Request, res: Response) => {
 					}
 				);
 
-				res.json({});
-
+				res.json({
+					success: true,
+					message: "User updated",
+				});
 				break;
 
 			case "user.deleted":
 				await User.findOneAndDelete({ userId: data.id });
-				res.json({});
-
+				res.json({
+					success: true,
+					message: "User deleted",
+				});
 				break;
+
+			default:
+				res.status(400).json({
+					success: false,
+					message: "Unhandled event type",
+				});
 		}
 	} catch (error: any) {
 		console.log(error);

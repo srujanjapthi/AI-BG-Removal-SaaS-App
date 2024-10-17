@@ -6,7 +6,7 @@ export type UserSchemType = {
 	photo: string;
 	firstName: string;
 	lastName: string;
-	creditBalance?: number;
+	creditBalance: number;
 };
 
 const userSchema = new mongoose.Schema<UserSchemType>({
