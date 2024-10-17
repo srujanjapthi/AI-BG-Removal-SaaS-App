@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-type UserSchemType = {
+export type UserSchemType = {
 	userId: string;
 	email: string;
 	photo: string;
 	firstName: string;
 	lastName: string;
-	creditBalance: number;
+	creditBalance?: number;
 };
 
 const userSchema = new mongoose.Schema<UserSchemType>({

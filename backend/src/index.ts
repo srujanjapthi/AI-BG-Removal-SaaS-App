@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import "dotenv/config";
 import cors from "cors";
 import connectDB from "./configs/mongodb";
+import userRouter from "./routes/MyUserRoute";
 
 // App config
 const PORT = process.env.PORT || 4000;
@@ -21,6 +22,8 @@ app.get("/api/test", (req: Request, res: Response) => {
 		success: true,
 	});
 });
+
+app.use("/api/user", userRouter);
 
 app.listen(PORT, () => {
 	console.log(`App started on http://localhost:${PORT}`);
