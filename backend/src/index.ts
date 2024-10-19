@@ -3,11 +3,14 @@ import "dotenv/config";
 import cors from "cors";
 import connectDB from "./configs/mongodb";
 import userRouter from "./routes/MyUserRoute";
+import imageRouter from "./routes/ImageRoute";
+import { setupCloudinary } from "./configs/cloudinary";
 
 // App config
 const PORT = process.env.PORT || 4000;
 const app = express();
 
+setupCloudinary();
 connectDB();
 
 // Initialize middlewares
@@ -24,6 +27,7 @@ app.get("/api/test", (req: Request, res: Response) => {
 });
 
 app.use("/api/user", userRouter);
+app.use("/api/image", imageRouter);
 
 app.listen(PORT, () => {
 	console.log(`App started on http://localhost:${PORT}`);

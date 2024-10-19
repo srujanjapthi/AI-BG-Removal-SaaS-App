@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Webhook } from "svix";
-import User, { UserSchemType } from "../models/user";
+import User from "../models/user";
 import { WebhookEvent } from "@clerk/clerk-sdk-node";
 
 // API Controller Function to Manage Clerk User with database
@@ -22,20 +22,24 @@ export const clerkWebhooks = async (req: Request, res: Response) => {
 
 		switch (type) {
 			case "user.created":
-				await User.create({
-					userId: data.id,
+				console.log(data);
+
+				const user = await User.create({
+					clerkId: data.id,
 					email: data.email_addresses[0].email_address,
 					firstName: data.first_name! as string,
 					lastName: data.last_name as string,
 					photo: data.image_url,
 				});
 
+				console.log(user);
+
 				res.json({ success: true, message: "User created" });
 				break;
 
 			case "user.updated":
 				await User.findOneAndUpdate(
-					{ userId: data.id },
+					{ clerkId: data.id },
 					{
 						email: data.email_addresses[0].email_address,
 						firstName: data.first_name,
@@ -51,7 +55,7 @@ export const clerkWebhooks = async (req: Request, res: Response) => {
 				break;
 
 			case "user.deleted":
-				await User.findOneAndDelete({ userId: data.id });
+				await User.findOneAndDelete({ clerkId: data.id });
 				res.json({
 					success: true,
 					message: "User deleted",
@@ -73,6 +77,33 @@ export const clerkWebhooks = async (req: Request, res: Response) => {
 	}
 };
 
+const userCredits = async (req: Request, res: Response) => {
+	try {
+		const clerkId = req.clerkId;
+		const user = await User.findOne({ clerkId });
+
+		if (!user) {
+			res.status(400).json({
+				message: "Something went wrong",
+			});
+
+			return;
+		}
+
+		res.json({
+			success: true,
+			credits: user.creditBalance,
+		});
+	} catch (error: any) {
+		console.log(error);
+		res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+};
+
 export default {
 	clerkWebhooks,
+	userCredits,
 };

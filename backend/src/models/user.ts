@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-export type UserSchemType = {
-	userId: string;
+type UserSchemType = {
+	clerkId: string;
 	email: string;
 	photo: string;
 	firstName: string;
@@ -10,7 +10,7 @@ export type UserSchemType = {
 };
 
 const userSchema = new mongoose.Schema<UserSchemType>({
-	userId: {
+	clerkId: {
 		type: String,
 		required: true,
 		unique: true,
@@ -36,5 +36,5 @@ const userSchema = new mongoose.Schema<UserSchemType>({
 	},
 });
 
-const User = mongoose.models.user || mongoose.model("User", userSchema);
+const User = mongoose.model<UserSchemType>("User", userSchema);
 export default User;
